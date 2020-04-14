@@ -1,1 +1,29 @@
-reddy
+package webapplication;
+
+import static webapplication.Test2.*;
+
+import org.testng.annotations.Test;
+
+public class BigBasketBeverages 
+{
+	
+	/**
+	 * This method is used to launch the browser and open Big Basket Site 
+	 *
+	 */
+	
+   @Test
+   public void test() throws Exception
+   {
+	   launch();
+	   location();
+	   bevarages();
+	   listofallproducts();
+  }
+	
+	
+	
+	
+
+	
+	}
