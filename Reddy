@@ -1,3 +1,5 @@
+This is a Test1 Application
+
 package webapplication;
 
 import static webapplication.Test2.*;
@@ -20,10 +22,185 @@ public class BigBasketBeverages
 	   bevarages();
 	   listofallproducts();
   }
+  
+}
+
+
+This is a Test2 Application
+
+package webapplication;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.List;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+
+public class Test2 
+{
+	public static XSSFWorkbook workbook;
+	public static WebDriverWait wait;
+	public static WebDriver driver;
+
+	/**
+	 * This method is used to launch the browser and open Big Basket Site 
+	 *
+	
+	 */
+	
+	public static void launch() throws Exception {
+		
+	    driver = new ChromeDriver();
+		driver.get("https://www.bigbasket.com");
+		driver.manage().window().maximize();
+		
+	}
+	
+	/**
+	 * This method is used to Select Hyderabad Location
+	 *
+	 */
+	
+	public static void location()
+	{
+		
+		wait = new WebDriverWait(driver, 20);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@qa='areaDD']/i")));
+		driver.findElement(By.xpath("//a[@qa='areaDD']/i")).click();
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//i[@class='caret pull-right'])[1]")));
+		driver.findElement(By.xpath("(//i[@class='caret pull-right'])[1]")).click();
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//input[@type='search'])[1]")));
+		driver.findElement(By.xpath("(//input[@type='search'])[1]")).sendKeys("hyderabad", Keys.ENTER);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[text()='Continue']")));
+		driver.findElement(By.xpath("//button[text()='Continue']")).click();
+	}
+		
 	
 	
+	/**
+	 * This method is used to Select Beverages
+	 *
+	 */
+
+	 public static void bevarages() throws Exception
+	 {
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[text()='Shop by Category ']")));
+		driver.findElement(By.xpath("//a[text()='Shop by Category ']")).click();
+		Thread.sleep(5000);
+		driver.findElement(By.xpath("(//a[text()='Beverages'])[2]")).click();
+		Thread.sleep(5000);
+		//wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sel1")));
+		WebElement e = driver.findElement(By.id("sel1"));
+		Select s = new Select(e);
+		s.selectByVisibleText("Price - High to Low");
+		Thread.sleep(5000);
+	 }
+	 
+	
+	/**
+	 * This method is used to list of all products displayed
+	 *
+	 */
 	
 	
+	public static void listofallproducts() throws Exception
+	{
+		
+		
+		FileInputStream fis = new FileInputStream("test4.xlsx");
+		workbook = new XSSFWorkbook(fis);
+		XSSFSheet sheet = workbook.getSheet("Sheet1");
+		List<WebElement> AllProd = driver.findElements(By.xpath("//*[@qa='product_name']"));
+		System.out.println(AllProd.size());
+		for (int i = 1; i < AllProd.size(); i++) {
+			List<WebElement> productname = driver.findElements(By.xpath("//*[@qa='product_name']"));
+			Row FirstRow = sheet.createRow(0); // Creating a row
+			Cell ProductName = FirstRow.createCell(0); // Creating a cell
+			ProductName.setCellValue("Productname");
+			Cell CutOverPrice = FirstRow.createCell(1); // Creating a cell
+			CutOverPrice.setCellValue("Displayed Price");
+			Cell DisplatedPrice = FirstRow.createCell(2); // Creating a cell
+			DisplatedPrice.setCellValue("CutOver Price");
+			Row row = sheet.createRow(i);
+			List<WebElement> price = driver.findElements(By.xpath("(//*[@qa='price'])[" + i + "]/descendant::h4/span"));
+			if (price.size() == 1) {
+				Cell Product = row.createCell(0);
+				Product.setCellValue(productname.get(i).getText());
+				WebElement DSP = driver
+						.findElement(By.xpath("(//*[@qa='price'])[" + i + "]/descendant::h4/span/span[2]"));
+				System.out.println("Displayed Price is :" + DSP.getText());
+				Cell DSPE = row.createCell(1);
+				DSPE.setCellValue(DSP.getText());
+			}
+			if (price.size() == 2) {
+				Cell Product = row.createCell(0);
+				Product.setCellValue(productname.get(i).getText());
+				WebElement DSP = driver
+						.findElement(By.xpath("(//*[@qa='price'])[" + i + "]/descendant::h4/span[2]/span"));
+				System.out.println("Displayed Price is : " + DSP.getText());
+				Cell DSPE = row.createCell(1);
+				DSPE.setCellValue(DSP.getText());
+				WebElement COP = driver
+						.findElement(By.xpath("(//*[@qa='price'])[" + i + "]/descendant::h4/span[1]/span"));
+				System.out.println("CutOver Price is : " + COP.getText());
+				Cell COPE = row.createCell(2);
+				COPE.setCellValue(COP.getText());
+			}
+		}
+		
+		
+		for (int i = 0; i < AllProd.size(); i++)
+		{
+			
+			long start = System.currentTimeMillis();
+			List<WebElement> productname = driver.findElements(By.xpath("//*[@qa='product_name']"));
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			Thread.sleep(5000);
+		    productname.get(i).click();
+			long finish = System.currentTimeMillis();
+			long totalTime = finish - start;
+			System.out.println("Total Time take to navigate to Product in milli seconds is : " + totalTime);
+			driver.navigate().back();
+			js.executeScript("window.scrollTo(document.body.scrollHeight, 0);");
+			Thread.sleep(3000);
+			WebElement cat = driver.findElement(By.xpath("//a[text()='Shop by Category ']"));
+			cat.click();
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//a[text()='Beverages'])[2]")));
+			wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//a[text()='Beverages'])[2]")));
+			driver.findElement(By.xpath("(//a[text()='Beverages'])[2]")).click();
+			Thread.sleep(5000);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sel1")));
+			WebElement e2 = driver.findElement(By.id("sel1"));
+			Select s1 = new Select(e2);
+			s1.selectByVisibleText("Price - High to Low");
+			Thread.sleep(5000);
+				
+		}
+              
+		
+		FileOutputStream fos = new FileOutputStream("test4.xlsx");
+		workbook.write(fos);
+		fos.close();
+		driver.close();
+		
+	}
+
+		
+		}
+		
+
 
 	
-	}
